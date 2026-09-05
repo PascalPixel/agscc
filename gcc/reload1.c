@@ -6361,7 +6361,7 @@ emit_input_reload_insns (chain, rl, old, j)
 	{
 	  if (icode != CODE_FOR_nothing)
 	    {
-	      emit_insn (GEN_FCN (icode) (reloadreg, real_oldequiv,
+	      emit_insn (((insn_gen_fn3) GEN_FCN (icode)) (reloadreg, real_oldequiv,
 					  second_reload_reg));
 	      special = 1;
 	    }
@@ -6377,9 +6377,9 @@ emit_input_reload_insns (chain, rl, old, j)
 		  rtx third_reload_reg
 		    = rld[rld[secondary_reload].secondary_in_reload].reg_rtx;
 
-		  emit_insn ((GEN_FCN (tertiary_icode)
+		  emit_insn (((insn_gen_fn3) GEN_FCN (tertiary_icode))
 			      (second_reload_reg, real_oldequiv,
-			       third_reload_reg)));
+			       third_reload_reg));
 		}
 	      else
 		gen_reload (second_reload_reg, real_oldequiv,
@@ -6486,8 +6486,8 @@ emit_output_reload_insns (chain, rl, j)
 	     or as an intermediate register.  */
 	  if (rl->secondary_out_icode != CODE_FOR_nothing)
 	    {
-	      emit_insn ((GEN_FCN (rl->secondary_out_icode)
-			  (real_old, second_reloadreg, reloadreg)));
+	      emit_insn (((insn_gen_fn3) GEN_FCN (rl->secondary_out_icode))
+			  (real_old, second_reloadreg, reloadreg));
 	      special = 1;
 	    }
 	  else
@@ -6525,8 +6525,8 @@ emit_output_reload_insns (chain, rl, j)
 
 		  gen_reload (reloadreg, second_reloadreg,
 			      rl->opnum, rl->when_needed);
-		  emit_insn ((GEN_FCN (tertiary_icode)
-			      (real_old, reloadreg, third_reloadreg)));
+		  emit_insn (((insn_gen_fn3) GEN_FCN (tertiary_icode))
+			      (real_old, reloadreg, third_reloadreg));
 		  special = 1;
 		}
 

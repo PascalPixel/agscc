@@ -99,7 +99,7 @@ gen_add3_insn (r0, r1, c)
 	    (c, insn_data[icode].operand[2].mode)))
     return NULL_RTX;
 
-  return (GEN_FCN (icode) (r0, r1, c));
+  return (((insn_gen_fn3) GEN_FCN (icode)) (r0, r1, c));
 }
 
 

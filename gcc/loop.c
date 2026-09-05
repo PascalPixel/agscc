@@ -8169,8 +8169,8 @@ check_dbra_loop (loop, insn_count)
 		    return 0;
 		  start_value
 		    = gen_rtx_PLUS (mode, comparison_value, offset);
-		  emit_insn_before ((GEN_FCN (icode)
-				     (reg, comparison_value, offset)),
+		  emit_insn_before (((insn_gen_fn3) GEN_FCN (icode))
+				     (reg, comparison_value, offset),
 				    loop_start);
 		  if (GET_CODE (comparison) == LE)
 		    final_value = gen_rtx_PLUS (mode, comparison_value,
@@ -8189,8 +8189,8 @@ check_dbra_loop (loop, insn_count)
 		    return 0;
 		  start_value
 		    = gen_rtx_MINUS (mode, comparison_value, initial_value);
-		  emit_insn_before ((GEN_FCN (icode)
-				     (reg, comparison_value, initial_value)),
+		  emit_insn_before (((insn_gen_fn3) GEN_FCN (icode))
+				     (reg, comparison_value, initial_value),
 				    loop_start);
 		}
 	      else
