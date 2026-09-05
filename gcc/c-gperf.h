@@ -9,7 +9,7 @@ static unsigned int hash PARAMS ((const char *, unsigned int));
 #ifdef __GNUC__
 __inline
 #endif
-struct resword *is_reserved_word PARAMS ((const char *, unsigned int));
+static struct resword *is_reserved_word PARAMS ((const char *, unsigned int));
 
 #define TOTAL_KEYWORDS 94
 #define MIN_WORD_LENGTH 2
@@ -221,7 +221,7 @@ static struct resword wordlist[] =
 #ifdef __GNUC__
 __inline
 #endif
-struct resword *
+static struct resword *
 is_reserved_word (str, len)
      register const char *str;
      register unsigned int len;
