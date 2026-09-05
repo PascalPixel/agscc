@@ -475,10 +475,24 @@ union tree_node;
 REAL_VALUE_TYPE real_value_from_int_cst	PARAMS ((union tree_node *,
 						union tree_node *));
 
-#define REAL_VALUE_FROM_CONST_DOUBLE(to, from)		\
-do { union real_extract u;				\
-     bcopy ((char *) &CONST_DOUBLE_LOW ((from)), (char *) &u, sizeof u); \
-     to = u.d; } while (0)
+/* Not a flat bcopy of CONST_DOUBLE_LOW/HIGH: that assumes the two fld[]
+   slots are packed at sizeof(HOST_WIDE_INT) stride. rtunion also holds
+   real pointers, so on LP64 hosts (every 64-bit host, incl. arm64 macOS)
+   each fld[] slot is actually pointer-sized (8 bytes) regardless of
+   HOST_WIDE_INT being 32-bit; a flat copy starting at fld[2] then never
+   reaches fld[3] and silently zeros the high word of every float
+   constant. Copy each HOST_WIDE_INT through its own fld[] slot (via
+   XWINT, which the compiler offsets correctly) instead. */
+#define REAL_VALUE_FROM_CONST_DOUBLE(to, from)				\
+do { union real_extract real_value_from_const_double_u;		\
+     unsigned int real_value_from_const_double_i;			\
+     for (real_value_from_const_double_i = 0;				\
+	  real_value_from_const_double_i				\
+	    < sizeof (real_value_from_const_double_u) / sizeof (HOST_WIDE_INT); \
+	  real_value_from_const_double_i++)				\
+       real_value_from_const_double_u.i[real_value_from_const_double_i] \
+	 = XWINT ((from), 2 + real_value_from_const_double_i);	\
+     to = real_value_from_const_double_u.d; } while (0)
 
 /* Return a CONST_DOUBLE with value R and mode M.  */
 
