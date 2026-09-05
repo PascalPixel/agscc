@@ -1,0 +1,4 @@
+# configuration for IBM RS/6000 running AIX 4.1+
+
+# Show we need to use the C version of ALLOCA
+ALLOCA=alloca.o

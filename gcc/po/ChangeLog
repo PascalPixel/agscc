@@ -1,0 +1,112 @@
+2000-07-13  Nick Clifton  <nickc@cygnus.com>
+
+ 	* POTFILES.in: Add new gcc files.
+
+2000-06-27  Philipp Thomas  <pthomas@suse.de>
+
+	* POTFILES.in: Add diagnostic.c .
+	* gcc.pot: Regenerate.
+	* cat-id-tbl.c: Regenerate.
+
+2000-06-19  Philipp Thomas  <pthomas@suse.de>
+
+	* POTFILES.in: change entries for dyn-string.[ch]
+
+2000-06-13  Philipp Thomas  <pthomas@suse.de>
+
+	* en_UK.po: Renamed to en_GB.po.
+
+2000-06-07  Philipp Thomas  <pthomas@suse.de>
+
+	* POTFILES.in: Remove dyn-string.[ch].
+	* gcc.pot: Regenerated.
+	* cat-id-tbl.c: Ditto.
+
+2000-06-06  Philipp Thomas  <pthomas@suse.de>
+
+	* Makefile.in.in: Add --define switch for xgettext.
+
+2000-05-30  Philipp Thomas  <pthomas@suse.de>
+
+	* Makefile.in.in: Create compiled catalogs in objdir, not
+	srcdir. Create gcc.pot and cat-tbl-id.c only in maintainer
+	mode.
+	* gcc.pot: Generated and checked in.
+	* cat-tbl-id.c: Generated and checked in.
+	* stamp-cat-id: Generated and checked in.
+
+2000-04-28  Zack Weinberg  <zack@wolery.cumb.org>
+
+	* POTFILES.in: Remove pcp.h.
+
+2000-04-18  Zack Weinberg  <zack@wolery.cumb.org>
+
+	* POTFILES.in: Remove cccp.c and cexp.c.  Comment out
+	alpha/vms-tramp.asm.
+
+2000-04-05  Geoff Keating  <geoffk@cygnus.com>
+
+	* POTFILES.in: Remove config/rs6000/eabi-ctors.c, which was
+	previously commented out anyway.
+
+2000-04-05  Geoff Keating  <geoffk@cygnus.com>
+
+	* POTFILES.in: Update for config/rs6000 changes.  Comment out
+	rs6000 files which are not built into GCC.
+
+2000-03-29  Philipp Thomas  <pthomas@suse.de>
+
+	* POTFILES.in: Remove config/rs6000/cygwin.h
+
+2000-02-05  Zack Weinberg  <zack@wolery.cumb.org>
+
+	* POTFILES.in: Remove stupid.c.
+	* exgettext: s/VPROTO/VPARAMS/ now that we are no longer using
+	VPROTO.
+
+1999-12-31  Manfred Hollstein  <mhollstein@cygnus.com>
+
+	* POTFILES.in: Remove config/xm-siglist.h.
+
+Mon Nov 22 23:17:13 1999  Jeffrey A Law  (law@cygnus.com)
+
+	* POTFILES.in: Add config/freebsd.h
+
+Sun Oct 31 17:17:18 1999  Jeffrey A Law  (law@cygnus.com)
+
+	* POTFILES.in: Add simplify-rtx.c
+
+1999-10-23  Manfred Hollstein  <mhollstein@cygnus.com>
+
+	* POTFILES.in: Track files recently added/deleted/moved.
+
+1999-10-18  Manfred Hollstein  <mhollstein@cygnus.com>
+
+	* POTFILES.in: Track files recently added/deleted/moved.
+
+1999-09-05  Jeff Garzik  <garzik@havoc.gtf.org>
+
+	* POTFILES.in: Add cppfiles.c, cppinit.c, cppspec.c.
+
+1999-09-04  Manfred Hollstein  <mhollstein@cygnus.com>
+
+	* POTFILES.in: Track files recently added/deleted/moved.
+
+1999-08-29  Manfred Hollstein  <mhollstein@cygnus.com>
+
+	* POTFILES.in: Track files recently added/deleted.
+
+1999-07-10  Manfred Hollstein  <mhollstein@cygnus.com>
+
+	* POTFILES.in: Track files recently added/deleted.
+
+1999-03-21  Manfred Hollstein  <manfred@s-direktnet.de>
+
+	* POTFILES.in: Track latest file renamings.
+
+1999-03-01  Manfred Hollstein  <manfred@s-direktnet.de>
+
+	* POTFILES.in: Remove files which do not exist anymore in egcs.
+	Fix names of those files which are now living in egcs's
+	libiberty/include directories.
+

@@ -1,0 +1,59 @@
+# Do not build libgcc1.
+LIBGCC1 =
+CROSS_LIBGCC1 =
+
+# We want fine grained libraries, so use the new code to build the
+# floating point emulation libraries.
+FPBIT = fp-bit.c
+DPBIT = dp-bit.c
+
+dp-bit.c: $(srcdir)/config/fp-bit.c
+	cat $(srcdir)/config/fp-bit.c > dp-bit.c
+
+fp-bit.c: $(srcdir)/config/fp-bit.c
+	echo '#define FLOAT' > fp-bit.c
+	cat $(srcdir)/config/fp-bit.c >> fp-bit.c
+
+# Build the libraries for both hard and soft floating point and all of the 
+# different processor models
+
+MULTILIB_OPTIONS	= msoft-float \
+			  mcpu=common/mcpu=power/mcpu=powerpc/maix64
+
+MULTILIB_DIRNAMES	= soft-float \
+			  common power powerpc ppc64
+
+MULTILIB_MATCHES	= msoft-float=mcpu?403 \
+			  mcpu?power=mpower \
+			  mcpu?power=mrios1 \
+			  mcpu?power=mcpu?rios1 \
+			  mcpu?power=mcpu?rsc \
+			  mcpu?power=mcpu?rsc1 \
+			  mcpu?power=mpower2 \
+			  mcpu?power=mrios2 \
+			  mcpu?power=mcpu=rios2 \
+			  mcpu?powerpc=mcpu?rs64a \
+			  mcpu?powerpc=mcpu?601 \
+			  mcpu?powerpc=mcpu?602 \
+			  mcpu?powerpc=mcpu?603 \
+			  mcpu?powerpc=mcpu?603e \
+			  mcpu?powerpc=mcpu?604 \
+			  mcpu?powerpc=mcpu?620 \
+			  mcpu?powerpc=mcpu?630 \
+			  mcpu?powerpc=mcpu?750 \
+			  mcpu?powerpc=mcpu?403 \
+			  mcpu?powerpc=mpowerpc \
+			  mcpu?powerpc=mpowerpc-gpopt \
+			  mcpu?powerpc=mpowerpc-gfxopt
+
+LIBGCC = stmp-multilib
+INSTALL_LIBGCC = install-multilib
+
+
+# Both 32-bit and 64-bit objects in archives
+AR_FLAGS_FOR_TARGET=-X32_64
+
+# We need -lld for collect2 (actually this only matters
+# for a native compiler, but this is as good a place as any
+# to define the symbol).
+CLIB=-lld
