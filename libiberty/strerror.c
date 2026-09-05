@@ -465,8 +465,19 @@ static const char **sys_errlist;
 
 #else
 
+/* macOS's <stdio.h> (Darwin extensions, enabled under -std=gnu*) declares
+   these as const; a plain `extern int` here is a conflicting redeclaration
+   under Clang/C23 rules and a hard error (not merely a warning). Both
+   forms are read-only from this file (writes only happen in the
+   !HAVE_SYS_ERRLIST branch above), so widening to const is safe on every
+   host that defines HAVE_SYS_ERRLIST. */
+#if defined(__APPLE__)
+extern const int sys_nerr;
+extern const char *const sys_errlist[];
+#else
 extern int sys_nerr;
 extern char *sys_errlist[];
+#endif
 
 #endif
 
