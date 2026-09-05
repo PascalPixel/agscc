@@ -4154,7 +4154,22 @@ init_emit_once (line_numbers)
 	  bzero ((char *) &u, sizeof u);  /* Zero any holes in a structure.  */
 	  u.d = i == 0 ? dconst0 : i == 1 ? dconst1 : dconst2;
 
-	  bcopy ((char *) &u, (char *) &CONST_DOUBLE_LOW (tem), sizeof u);
+	  /* NOT a flat bcopy(&u, &CONST_DOUBLE_LOW(tem), sizeof u): that
+	     assumes CONST_DOUBLE_LOW/HIGH (rtx fld[2]/fld[3]) are adjacent
+	     at sizeof(HOST_WIDE_INT) stride, true only when rtunion is
+	     exactly HOST_WIDE_INT-sized. rtunion also holds real pointers,
+	     so on LP64 hosts (every 64-bit host, arm64 macOS included)
+	     each fld[] slot is 8 bytes regardless of HOST_WIDE_INT being
+	     32-bit -- a flat 8-byte copy starting at fld[2] never reaches
+	     fld[3], silently zeroing the high word of every float constant.
+	     Copy each HOST_WIDE_INT through its own fld[] slot instead, so
+	     the real (compiler-computed) union stride is always used. */
+	  {
+	    unsigned int n_words = sizeof (u) / sizeof (HOST_WIDE_INT);
+	    unsigned int w;
+	    for (w = 0; w < n_words; w++)
+	      XWINT (tem, 2 + w) = u.i[w];
+	  }
 	  CONST_DOUBLE_MEM (tem) = cc0_rtx;
 	  CONST_DOUBLE_CHAIN (tem) = NULL_RTX;
 	  PUT_MODE (tem, mode);

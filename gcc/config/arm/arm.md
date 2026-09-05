@@ -8186,8 +8186,15 @@
       {
       case MODE_FLOAT:
       {
+        /* Not a flat bcopy: CONST_DOUBLE_LOW/HIGH's fld[] slots are
+           pointer-sized (8 bytes) on LP64 hosts, not sizeof(HOST_WIDE_INT)
+           apart, so a flat copy starting at fld[2] never reaches fld[3]
+           and silently zeros the high word. Copy through XWINT instead. */
         union real_extract u;
-        bcopy ((char *) &CONST_DOUBLE_LOW (operands[0]), (char *) &u, sizeof u);
+        unsigned int n_words = sizeof (u) / sizeof (HOST_WIDE_INT);
+        unsigned int w;
+        for (w = 0; w < n_words; w++)
+          u.i[w] = XWINT (operands[0], 2 + w);
         assemble_real (u.d, GET_MODE (operands[0]));
         break;
       }
@@ -8210,8 +8217,13 @@
       {
        case MODE_FLOAT:
         {
+          /* Not a flat bcopy: see consttable_4 above (rtunion-stride bug
+             on LP64 hosts). */
           union real_extract u;
-          bcopy ((char *) &CONST_DOUBLE_LOW (operands[0]), (char *) &u, sizeof u);
+          unsigned int n_words = sizeof (u) / sizeof (HOST_WIDE_INT);
+          unsigned int w;
+          for (w = 0; w < n_words; w++)
+            u.i[w] = XWINT (operands[0], 2 + w);
           assemble_real (u.d, GET_MODE (operands[0]));
           break;
         }

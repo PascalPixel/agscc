@@ -2195,7 +2195,15 @@ immed_real_const_1 (d, mode)
   r = rtx_alloc (CONST_DOUBLE);
   pop_obstacks ();
   PUT_MODE (r, mode);
-  bcopy ((char *) &u, (char *) &CONST_DOUBLE_LOW (r), sizeof u);
+  /* Not a flat bcopy: see emit-rtl.c's init_emit_once (same rtunion-stride
+     bug on LP64 hosts, where CONST_DOUBLE_LOW/HIGH's fld[] slots are 8
+     bytes apart, not sizeof(HOST_WIDE_INT)). */
+  {
+    unsigned int n_words = sizeof (u) / sizeof (HOST_WIDE_INT);
+    unsigned int w;
+    for (w = 0; w < n_words; w++)
+      XWINT (r, 2 + w) = u.i[w];
+  }
 
   /* If we aren't inside a function, don't put r on the
      const_double_chain.  */
@@ -3381,8 +3389,14 @@ decode_rtx_const (mode, x, value)
       if (GET_MODE (x) != VOIDmode)
 	{
 	  value->mode = GET_MODE (x);
-	  bcopy ((char *) &CONST_DOUBLE_LOW (x),
-		 (char *) &value->un.du, sizeof value->un.du);
+	  /* Not a flat bcopy: see emit-rtl.c's init_emit_once (rtunion-
+	     stride bug on LP64 hosts). */
+	  {
+	    unsigned int n_words = sizeof (value->un.du) / sizeof (HOST_WIDE_INT);
+	    unsigned int w;
+	    for (w = 0; w < n_words; w++)
+	      value->un.du.i[w] = XWINT (x, 2 + w);
+	  }
 	}
       else
 	{
@@ -3846,7 +3860,14 @@ output_constant_pool (fnname, fndecl)
 	  if (GET_CODE (x) != CONST_DOUBLE)
 	    abort ();
 
-	  bcopy ((char *) &CONST_DOUBLE_LOW (x), (char *) &u, sizeof u);
+	  /* Not a flat bcopy: see emit-rtl.c's init_emit_once (rtunion-
+	     stride bug on LP64 hosts). */
+	  {
+	    unsigned int n_words = sizeof (u) / sizeof (HOST_WIDE_INT);
+	    unsigned int w;
+	    for (w = 0; w < n_words; w++)
+	      u.i[w] = XWINT (x, 2 + w);
+	  }
 	  assemble_real (u.d, pool->mode);
 	  break;
 
