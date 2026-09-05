@@ -201,6 +201,32 @@ typedef int (*insn_operand_predicate_fn) PARAMS ((rtx, enum machine_mode));
 typedef const char * (*insn_output_fn) PARAMS ((rtx *, rtx));
 typedef rtx (*insn_gen_fn) PARAMS ((rtx, ...));
 
+/* insn_gen_fn is a "(rtx, ...)" varargs type used purely as a generic
+   storage slot: insn_data[].genfun holds gen_* functions of many real,
+   fixed arities (genoutput.c casts each one to insn_gen_fn only for the
+   static initializer). GEN_FCN(icode)(args...) call sites then call
+   through that variadic-typed expression directly.
+
+   That is host-ABI-fragile. On the standard x86/x86-64 (SysV) and Linux
+   AAPCS64 ABIs, a variadic-typed call and a fixed-arity call pass the
+   same leading arguments identically, so this has always worked there.
+   Apple's arm64 ABI does not: it requires every argument matched by the
+   callee's "..." to be passed on the stack, never in registers, even
+   when the real callee (e.g. gen_addsi3, a plain 3-arg K&R function)
+   reads them as ordinary fixed parameters expected in registers. Calling
+   through the bare insn_gen_fn/genfun therefore silently drops/shifts
+   arguments on macOS arm64 and corrupts the generated RTL.
+
+   Fix: cast GEN_FCN(icode) (and the few equivalent raw genfun-style
+   pointers below) to one of these fixed-arity types, matching the
+   argument count actually passed at each call site, before calling
+   through it. This does not change codegen output on any host; it only
+   changes how the host compiler is told to pass arguments to itself. */
+typedef rtx (*insn_gen_fn1) PARAMS ((rtx));
+typedef rtx (*insn_gen_fn2) PARAMS ((rtx, rtx));
+typedef rtx (*insn_gen_fn3) PARAMS ((rtx, rtx, rtx));
+typedef rtx (*insn_gen_fn4) PARAMS ((rtx, rtx, rtx, rtx));
+
 struct insn_operand_data
 {
   insn_operand_predicate_fn predicate;
