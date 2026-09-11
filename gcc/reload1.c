@@ -8033,9 +8033,7 @@ reload_cse_simplify_set (set, insn)
     /* ???   */
     old_cost = rtx_cost (src, SET);
 
-  /* Constants have no mode of their own.  Use the destination mode, as
-     cselib_record_sets does when recording the source value.  */
-  val = cselib_lookup (src, GET_MODE (SET_DEST (set)), 0);
+  val = cselib_lookup (src, VOIDmode, 0);
   if (! val)
     return 0;
   for (l = val->locs; l; l = l->next)
