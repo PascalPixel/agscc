@@ -1100,6 +1100,13 @@ poison_pages ()
 void
 ggc_collect ()
 {
+  /* Host port: never collect.  On a 64-bit host this collector frees part
+     of a saved inline function body once allocation passes the 4MB
+     threshold, and the next function that inlines it runs until killed.
+     Collection has no effect on generated code; translation units are
+     small enough to compile without it.  */
+  return;
+
   /* Avoid frequent unnecessary work by skipping collection if the
      total allocations haven't expanded much since the last
      collection.  */
