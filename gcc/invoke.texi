@@ -4541,6 +4541,13 @@ be reliably used inside one program.  The default is
 @samp{-mno-thumb-interwork}, since slightly larger code is generated
 when @samp{-mthumb-interwork} is specified.
 
+@item -mgs2
+@kindex -mgs2
+@kindex -mno-gs2
+Enable reconstructed Golden Sun 2 Thumb indirect-call and late constant
+materialization forms.  The default is @samp{-mno-gs2}.  These forms are
+inactive when @samp{-mthumb-interwork} is enabled.
+
 @item -mno-sched-prolog
 @kindex -mno-sched-prolog
 @kindex -msched-prolog

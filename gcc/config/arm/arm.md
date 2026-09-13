@@ -3789,6 +3789,17 @@
     }
   else /* TARGET_THUMB.... */
     {
+      /* GS2 uses an in-place sequence for late non-shiftable constants.  */
+      if (reload_in_progress
+          && TARGET_GS2
+          && ! TARGET_INTERWORK
+          && GET_CODE (operands[1]) == CONST_INT
+          && GET_CODE (operands[0]) == REG
+          && thumb_shift_add_const (INTVAL (operands[1])))
+        {
+          emit_insn (gen_thumb_movsi_synth (operands[0], operands[1]));
+          DONE;
+        }
       if (! (reload_in_progress || reload_completed))
         {
           if (GET_CODE (operands[0]) != REG)
@@ -3805,6 +3816,14 @@
 					    || reload_completed)
 					   ? operands[0] : 0));
 ")
+
+(define_insn "thumb_movsi_synth"
+  [(set (match_operand:SI 0 "register_operand" "=l")
+	(unspec:SI [(match_operand:SI 1 "const_int_operand" "i")] 9))]
+  "TARGET_THUMB && TARGET_GS2 && ! TARGET_INTERWORK"
+  "* return thumb_output_synth (operands);"
+  [(set (attr "length") (symbol_ref "thumb_synth_length (insn)"))]
+)
 
 (define_insn "*arm_movsi_insn"
   [(set (match_operand:SI 0 "nonimmediate_operand" "=r,r,r,m")
@@ -5912,6 +5931,8 @@
   {
     if (TARGET_CALLER_INTERWORKING)
       return \"bl\\t%__interwork_call_via_%0\";
+    else if (TARGET_GS2 && ! TARGET_INTERWORK)
+      return \"mov\\tlr, %0\\;.short\\t0xf800\";
     else
       return \"bl\\t%__call_via_%0\";
   }"
@@ -5929,6 +5950,8 @@
   {
     if (TARGET_CALLER_INTERWORKING)
       return \"bl\\t%__interwork_call_via_%1\";
+    else if (TARGET_GS2 && ! TARGET_INTERWORK)
+      return \"mov\\tlr, %1\\;.short\\t0xf800\";
     else
       return \"bl\\t%__call_via_%1\";
   }"

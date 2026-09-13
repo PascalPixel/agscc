@@ -12,6 +12,17 @@ parallelism (default 8). Building does not install or replace another compiler.
 The initial supported build is native ARM64 macOS. The historical i686 host
 descriptor selects the old integer model; it does not describe the host CPU.
 
+## GS2 option
+
+`-mgs2` enables the reconstructed Golden Sun 2 Thumb indirect-call and late
+constant-synthesis forms. It is disabled by default; `-mno-gs2` disables it
+explicitly. Interworking takes precedence, so `-mthumb-interwork` retains the
+normal interworking calls even with `-mgs2`.
+
+Both games can use this compiler. GS1 leaves the option disabled. The GS2
+changes live with GCC's licensed sources here, not in an Alchemy patch file.
+Run `sh tests/gs2-codegen.sh` after building to check the option boundaries.
+
 ## Provenance
 
 The root imports GCC upstream revision
@@ -27,8 +38,9 @@ any retained file. Subsequent commits separately record:
 - Darwin system-header compatibility.
 - This build entry point and documentation.
 
-Each patch's commit message records its justification. No custom allocator,
-scheduler, literal-pool, alignment, or target-option changes are included.
+Each change's commit message records its justification. The optional GS2
+lowering below is reconstructed from observed code, not recovered compiler
+source. It does not change the default target behavior.
 No GCC 3 or agbcc source is included. Alchemy consumes pret/agbcc separately.
 
 Compiler build success is not ROM equivalence. Alchemy owns compiler selection,

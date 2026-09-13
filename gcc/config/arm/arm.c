@@ -8592,6 +8592,78 @@ thumb_shiftable_const (val)
   return 0;
 }
 
+/* Return the shift that builds VAL as (base << shift) + offset with an
+   8-bit base and an 8-bit offset, or 0 when no such split exists.  */
+static int
+thumb_split_shift (n)
+     unsigned HOST_WIDE_INT n;
+{
+  int s;
+
+  if (n == 0)
+    return 0;
+  for (s = 1; s < 32; s++)
+    {
+      unsigned HOST_WIDE_INT a;
+
+      if (n & (((unsigned HOST_WIDE_INT) 1 << s) - 1))
+	return 0;
+      a = n >> s;
+      if (a <= 255)
+	return a >= 1 ? s : 0;
+    }
+  return 0;
+}
+
+/* The offset byte of the three-instruction form.  Prefer a full 255 when
+   VAL - 255 still splits as A << S; otherwise take the low byte.  */
+unsigned HOST_WIDE_INT
+thumb_shift_add_offset (val)
+     unsigned HOST_WIDE_INT val;
+{
+  if (val >= 256 && (val - 255 <= 255 || thumb_split_shift (val - 255)))
+    return 255;
+  return val & 0xff;
+}
+
+/* The shift of the synthesis, or 0 when the base already fits eight bits.  */
+int
+thumb_shift_add_shift (val)
+     unsigned HOST_WIDE_INT val;
+{
+  unsigned HOST_WIDE_INT b;
+
+  if (val < 256 || thumb_shiftable_const (val))
+    return 0;
+  b = thumb_shift_add_offset (val);
+  if (val - b <= 255)
+    return 0;
+  return thumb_split_shift (val - b);
+}
+
+int
+thumb_shift_add_const (val)
+     unsigned HOST_WIDE_INT val;
+{
+  unsigned HOST_WIDE_INT b;
+
+  if (val < 256 || thumb_shiftable_const (val))
+    return 0;
+  b = thumb_shift_add_offset (val);
+  return val - b <= 255 || thumb_split_shift (val - b) != 0;
+}
+
+/* Bytes of the synthesis insn: two instructions when no shift is needed.  */
+int
+thumb_synth_length (insn)
+     rtx insn;
+{
+  rtx set = single_set (insn);
+  rtx unspec = SET_SRC (set);
+
+  return thumb_shift_add_shift (INTVAL (XVECEXP (unspec, 0, 0))) ? 6 : 4;
+}
+
 /* Returns non-zero if the current function contains,
    or might contain a far jump.  */
 int
@@ -9770,3 +9842,23 @@ aof_dump_imports (f)
     }
 }
 #endif /* AOF_ASSEMBLER */
+
+/* Output the synthesis of a constant in OPERANDS[1] into OPERANDS[0].  */
+const char *
+thumb_output_synth (operands)
+     rtx *operands;
+{
+  static char buffer[80];
+  unsigned HOST_WIDE_INT val = INTVAL (operands[1]);
+  int shift = thumb_shift_add_shift (val);
+  unsigned HOST_WIDE_INT offset = thumb_shift_add_offset (val);
+
+  if (shift == 0)
+    sprintf (buffer, "mov\t%%0, #%lu\n\tadd\t%%0, %%0, #%lu",
+	     (unsigned long) (val - offset), (unsigned long) offset);
+  else
+    sprintf (buffer, "mov\t%%0, #%lu\n\tlsl\t%%0, %%0, #%d\n\tadd\t%%0, %%0, #%lu",
+	     (unsigned long) ((val - offset) >> shift), shift,
+	     (unsigned long) offset);
+  return buffer;
+}

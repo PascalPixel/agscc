@@ -159,9 +159,14 @@ extern void   thumb_expand_epilogue	PARAMS ((void));
 extern int    is_called_in_ARM_mode	PARAMS ((tree));
 #endif
 extern int    thumb_shiftable_const	PARAMS ((unsigned HOST_WIDE_INT));
+extern int    thumb_shift_add_shift	PARAMS ((unsigned HOST_WIDE_INT));
+extern unsigned HOST_WIDE_INT thumb_shift_add_offset PARAMS ((unsigned HOST_WIDE_INT));
+extern int    thumb_shift_add_const	PARAMS ((unsigned HOST_WIDE_INT));
 extern void   output_thumb_prologue	PARAMS ((FILE *));
 #ifdef RTX_CODE
 extern void   thumb_final_prescan_insn	PARAMS ((rtx));
+extern const char * thumb_output_synth	PARAMS ((rtx *));
+extern int    thumb_synth_length	PARAMS ((rtx));
 extern const char * thumb_load_double_from_address
 					PARAMS ((rtx *));
 extern const char * thumb_output_move_mem_multiple

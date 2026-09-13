@@ -355,6 +355,9 @@ Unrecognized value in TARGET_CPU_DEFAULT.
    destination is non-Thumb aware.  */
 #define THUMB_FLAG_CALLER_SUPER_INTERWORKING	(1 << 20)
 
+/* Nonzero if Golden Sun 2 Thumb lowering should be used.  */
+#define ARM_FLAG_GS2			(1 << 21)
+
 #define TARGET_APCS_FRAME		(target_flags & ARM_FLAG_APCS_FRAME)
 #define TARGET_POKE_FUNCTION_NAME	(target_flags & ARM_FLAG_POKE)
 #define TARGET_FPE			(target_flags & ARM_FLAG_FPE)
@@ -377,6 +380,7 @@ Unrecognized value in TARGET_CPU_DEFAULT.
 #define TARGET_EITHER			1 /* (TARGET_ARM | TARGET_THUMB) */
 #define TARGET_CALLEE_INTERWORKING	(target_flags & THUMB_FLAG_CALLEE_SUPER_INTERWORKING)
 #define TARGET_CALLER_INTERWORKING	(target_flags & THUMB_FLAG_CALLER_SUPER_INTERWORKING)
+#define TARGET_GS2			(target_flags & ARM_FLAG_GS2)
 #define TARGET_BACKTRACE	        (leaf_function_p ()	      			\
 				         ? (target_flags & THUMB_FLAG_LEAF_BACKTRACE)	\
 				         : (target_flags & THUMB_FLAG_BACKTRACE))
@@ -459,6 +463,9 @@ Unrecognized value in TARGET_CPU_DEFAULT.
    N_("Thumb: Assume function pointers may go to non-Thumb aware code") }, \
   {"no-caller-super-interworking", -THUMB_FLAG_CALLER_SUPER_INTERWORKING,  \
    "" },								   \
+  {"gs2",                     ARM_FLAG_GS2,                         \
+   N_("Enable Golden Sun 2 Thumb code generation") },                \
+  {"no-gs2",                 -ARM_FLAG_GS2, "" },                  \
   SUBTARGET_SWITCHES							   \
   {"",				TARGET_DEFAULT, "" }			   \
 }
