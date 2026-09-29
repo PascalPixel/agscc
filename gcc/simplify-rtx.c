@@ -2531,13 +2531,18 @@ hash_rtx (x, mode, create)
       /* Assume there is only one rtx object for any given label.  */
     case LABEL_REF:
       hash
-	+= ((unsigned) LABEL_REF << 7) + (unsigned long) XEXP (x, 0);
+	+= ((unsigned) LABEL_REF << 7) + CODE_LABEL_NUMBER (XEXP (x, 0));
       return hash ? hash : LABEL_REF;
 
     case SYMBOL_REF:
-      hash
-	+= ((unsigned) SYMBOL_REF << 7) + (unsigned long) XSTR (x, 0);
-      return hash ? hash : SYMBOL_REF;
+      {
+	const char *p = XSTR (x, 0);
+	unsigned h = 0;
+	while (*p)
+	  h += (h << 7) + *p++;
+	hash += ((unsigned) SYMBOL_REF << 7) + h;
+	return hash ? hash : SYMBOL_REF;
+      }
 
     case PRE_DEC:
     case PRE_INC:
