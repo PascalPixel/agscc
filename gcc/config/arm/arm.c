@@ -8592,6 +8592,52 @@ thumb_shiftable_const (val)
   return 0;
 }
 
+/* With -mthumb-split-constants, split a Thumb SImode constant that is
+   not I, J or K into a shifted byte plus an 8-bit addend, preferring an
+   addend of 255.  Returns non-zero and fills in *BASE, *SHIFT and
+   *ADDEND on success.  */
+int
+thumb_split_const (val, base, shift, addend)
+     HOST_WIDE_INT val;
+     HOST_WIDE_INT * base;
+     int * shift;
+     HOST_WIDE_INT * addend;
+{
+  unsigned HOST_WIDE_INT v = val & 0xffffffff;
+  unsigned HOST_WIDE_INT mask = 0xff;
+  unsigned HOST_WIDE_INT high;
+  int i;
+
+  if (! TARGET_THUMB_SPLIT_CONSTANTS
+      || v < 256
+      || CONST_OK_FOR_THUMB_LETTER (val, 'J')
+      || thumb_shiftable_const (v))
+    return 0;
+
+  high = v - 255;
+  for (i = 0; i < 25; i++)
+    if ((high & (mask << i)) == high)
+      break;
+
+  if (i == 25)
+    {
+      high = v & ~mask;
+      for (i = 0; i < 25; i++)
+	if ((high & (mask << i)) == high)
+	  break;
+      if (i == 25)
+	return 0;
+    }
+
+  if (base)
+    {
+      *base = high >> i;
+      *shift = i;
+      *addend = v - high;
+    }
+  return 1;
+}
+
 /* Returns non-zero if the current function contains,
    or might contain a far jump.  */
 int

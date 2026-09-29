@@ -3835,6 +3835,18 @@
   DONE;
 ")
 
+;; With -mthumb-split-constants, a constant that is not I, J or K but is a
+;; shifted byte plus an 8-bit addend is built in its register and split
+;; after reload, rather than loaded from the constant pool.
+(define_insn "*thumb_movsi_split_const"
+  [(set (match_operand:SI 0 "register_operand" "=l")
+	(match_operand:SI 1 "const_int_operand" "n"))]
+  "TARGET_THUMB && TARGET_THUMB_SPLIT_CONSTANTS
+   && CONST_OK_FOR_THUMB_LETTER (INTVAL (operands[1]), 'P')"
+  "#"
+  [(set_attr "length" "6")]
+)
+
 (define_insn "*thumb_movsi_insn"
   [(set (match_operand:SI 0 "nonimmediate_operand" "=l,l,l,l,l,>,l,m,*lh")
 	(match_operand:SI 1 "general_operand"       "l,I,J,K,>,l,mi,l,*lh"))]
@@ -3886,6 +3898,31 @@
 
     operands[1] = GEN_INT (val >> i);
     operands[2] = GEN_INT (i);
+  }"
+)
+
+;; With -mthumb-split-constants, a constant that is not I, J or K is built
+;; from a shifted byte and an 8-bit add instead of a pool load.
+(define_split 
+  [(set (match_operand:SI 0 "register_operand" "")
+	(match_operand:SI 1 "const_int_operand" ""))]
+  "TARGET_THUMB && CONST_OK_FOR_THUMB_LETTER (INTVAL (operands[1]), 'P')"
+  [(clobber (const_int 0))]
+  "
+  {
+    HOST_WIDE_INT base, addend;
+    int shift;
+
+    thumb_split_const (INTVAL (operands[1]), &base, &shift, &addend);
+    emit_insn (gen_rtx_SET (VOIDmode, operands[0], GEN_INT (base)));
+    if (shift)
+      emit_insn (gen_rtx_SET (VOIDmode, operands[0],
+			      gen_rtx_ASHIFT (SImode, operands[0],
+					      GEN_INT (shift))));
+    emit_insn (gen_rtx_SET (VOIDmode, operands[0],
+			    gen_rtx_PLUS (SImode, operands[0],
+					  GEN_INT (addend))));
+    DONE;
   }"
 )
 

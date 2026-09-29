@@ -355,6 +355,11 @@ Unrecognized value in TARGET_CPU_DEFAULT.
    destination is non-Thumb aware.  */
 #define THUMB_FLAG_CALLER_SUPER_INTERWORKING	(1 << 20)
 
+/* Set if Thumb constants that are not a shifted byte should be built
+   from a shifted byte and an 8-bit add rather than loaded from the
+   constant pool.  */
+#define THUMB_FLAG_SPLIT_CONSTANTS		(1 << 21)
+
 #define TARGET_APCS_FRAME		(target_flags & ARM_FLAG_APCS_FRAME)
 #define TARGET_POKE_FUNCTION_NAME	(target_flags & ARM_FLAG_POKE)
 #define TARGET_FPE			(target_flags & ARM_FLAG_FPE)
@@ -377,6 +382,7 @@ Unrecognized value in TARGET_CPU_DEFAULT.
 #define TARGET_EITHER			1 /* (TARGET_ARM | TARGET_THUMB) */
 #define TARGET_CALLEE_INTERWORKING	(target_flags & THUMB_FLAG_CALLEE_SUPER_INTERWORKING)
 #define TARGET_CALLER_INTERWORKING	(target_flags & THUMB_FLAG_CALLER_SUPER_INTERWORKING)
+#define TARGET_THUMB_SPLIT_CONSTANTS	(target_flags & THUMB_FLAG_SPLIT_CONSTANTS)
 #define TARGET_BACKTRACE	        (leaf_function_p ()	      			\
 				         ? (target_flags & THUMB_FLAG_LEAF_BACKTRACE)	\
 				         : (target_flags & THUMB_FLAG_BACKTRACE))
@@ -459,6 +465,9 @@ Unrecognized value in TARGET_CPU_DEFAULT.
    N_("Thumb: Assume function pointers may go to non-Thumb aware code") }, \
   {"no-caller-super-interworking", -THUMB_FLAG_CALLER_SUPER_INTERWORKING,  \
    "" },								   \
+  {"thumb-split-constants",	    THUMB_FLAG_SPLIT_CONSTANTS,		   \
+   N_("Thumb: Build constants with an add rather than a pool load") },	   \
+  {"no-thumb-split-constants",     -THUMB_FLAG_SPLIT_CONSTANTS, "" },	   \
   SUBTARGET_SWITCHES							   \
   {"",				TARGET_DEFAULT, "" }			   \
 }
@@ -1101,6 +1110,7 @@ enum reg_class
 		   && ((VAL) & 3) == 0) :		\
    (C) == 'N' ? ((unsigned HOST_WIDE_INT) (VAL) < 32) :	\
    (C) == 'O' ? ((VAL) >= -508 && (VAL) <= 508)		\
+   : (C) == 'P' ? thumb_split_const ((VAL), 0, 0, 0)	\
    : 0)
 
 #define CONST_OK_FOR_LETTER_P(VALUE, C)					\
