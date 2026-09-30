@@ -84,6 +84,39 @@ which returns 33 credited The Lost Age functions to drafts.
 verdict goes to Pascal on 2026-10-13. No compiler change lands before his
 answer.
 
+**Verdict (2026-09-30).** No public GCC from 2000–2002 can produce either
+habit, so the options stay. The study read all 417 changes to `gcc/config/arm`
+from 1999-12 to 2002-12, on trunk and the 2.95, 3.0 and 3.1 branches, and
+the ARM backend of all 28 candidates. Every one builds a Thumb constant
+inline only with mov, mov and neg, or mov and lsl, and loads anything else
+from the pool; every one calls through a register with a `_call_via_rX`
+stub, and none uses the lone BL-suffix call. Measured with the permuter's
+scorer, a3964ae with the options matches 88 of 348 held-out A functions and
+all 300 of B, and leaves C unchanged; without them it matches 83 and loses 37
+of B, each one an inline constant turned back into a pool load. The 2000-08
+snapshot, built with these host ports, reproduces a3964ae without the
+options function for function; the 2000-09 and 2000-10 snapshots break 152
+and 163 of B and change 1,470 and 1,661 of C's objects.
+
+Pascal chose on 2026-09-30 to keep both options under their GCC-style names,
+as Camelot's own changes to the Thumb backend. Why a person at Camelot made
+them: each habit runs through the whole of The Lost Age, so it belongs to the
+compiler and not to some functions; neither is in The Broken Seal, built a
+year earlier with the same compiler family; no public GCC of the time has
+either; and each is a small, local backend change a toolchain engineer makes
+for speed. The first skips a slow cartridge-ROM load for the constant; the
+second skips a stub on every indirect call, and works only because The Lost
+Age's game code no longer interworks with ARM code. That makes them one
+coherent change to one compiler. Alchemy's AGENTS.md (K1 to K3) holds the
+standard: a compiler change is admitted only when one option set explains a
+game's code as a whole, never a file or a function.
+
+The Lost Age's remaining instruction-order difference (for example
+DeriMura_TalkShopkeeper's one reordered load) is the same with or without
+the options and in the 2000-08 snapshot, and later snapshots make it worse,
+so it too points at a local change rather than a later public GCC. It gets no
+option until a whole-game rule for it is found.
+
 **The Broken Seal is settled.** a3964ae with Alchemy's flags reproduces all
 2,260 credited The Broken Seal objects byte for byte. No compiler variant that
 keeps them identical improves any of its drafts, and four July 2000 ChangeLog
