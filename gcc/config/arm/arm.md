@@ -5947,6 +5947,8 @@
   "TARGET_THUMB"
   "*
   {
+    if (TARGET_THUMB_CALL_VIA_LR)
+      return \"mov\\tlr, %0\\n\\t.2byte\\t0xf800\";
     if (TARGET_CALLER_INTERWORKING)
       return \"bl\\t%__interwork_call_via_%0\";
     else
@@ -5964,6 +5966,8 @@
   "TARGET_THUMB"
   "*
   {
+    if (TARGET_THUMB_CALL_VIA_LR)
+      return \"mov\\tlr, %1\\n\\t.2byte\\t0xf800\";
     if (TARGET_CALLER_INTERWORKING)
       return \"bl\\t%__interwork_call_via_%1\";
     else
