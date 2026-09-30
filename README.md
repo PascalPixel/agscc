@@ -26,10 +26,72 @@ any retained file. Subsequent commits separately record:
 - Internal linkage for the generated keyword lookup.
 - Darwin system-header compatibility.
 - This build entry point and documentation.
+- A disabled garbage collector in cc1, for host stability.
+- A post-reload constant lookup fix, reverted because it changed 8 bytes of
+  credited code.
+- Symbol and label hashing in cselib by content, not address, so the output
+  does not depend on where the host places memory.
+- Two Thumb options for The Lost Age only: `-mthumb-split-constants` (002c421)
+  and `-mthumb-call-via-lr` (a3964ae). They reconstruct habits found across
+  that game's code; no known GCC release has them. They are under the study
+  below and stay as they are until its verdict.
 
-Each patch's commit message records its justification. No custom allocator,
-scheduler, literal-pool, alignment, or target-option changes are included.
-No GCC 3 or agbcc source is included. Alchemy consumes pret/agbcc separately.
+Each patch's commit message records its justification. No other allocator,
+scheduler, literal-pool or alignment change is included. No GCC 3 or agbcc
+source is included. Alchemy consumes pret/agbcc separately.
+
+## The Lost Age compiler study
+
+Registered on 2026-09-30, before any candidate is built, as Pascal decided.
+
+**Question.** Does a public GCC from 2000–2002, with stock options, produce
+The Lost Age's code, so that the two reconstructed options can go?
+
+**Candidates.** Public GNU GCC from gcc.gnu.org only: one mainline snapshot a
+month from 2000-06 to 2002-05, and the releases 2.95.3, 3.0, 3.0.4 and 3.1.
+Each gets this repository's host ports and nothing else, and only stock
+options vary. First, the public `config/arm` history is searched for Thumb
+constant splitting beyond negation or shifts, and for an indirect call through
+a lone BL suffix to lr; snapshots around any hit are added.
+
+**Corpora, fixed now.**
+
+- A: The Lost Age functions whose The Broken Seal twin is linked C, compiled
+  from the unchanged The Broken Seal text. Functions whose start address has
+  bit 2 clear are the design half; the rest are held out.
+- B: every credited The Lost Age function, for regressions only.
+- C: every credited The Broken Seal C object, which must stay byte-identical
+  under that game's own route.
+- Canaries: DeriMura_TalkShopkeeper's load-versus-constant order; the 107
+  constant sequences agscc splits differently (such as 0x7784 in
+  recon/tla/raw/0816b6ec.s); the 1,537 pool loads of splittable numbers; and
+  The Lost Age drafts within five halfwords of The Broken Seal C.
+
+**Metric.** Exact functions on held-out A, then total instruction edits,
+scored with the scorer behind Alchemy's `make drafts`.
+
+**Pass mark.** Compiler X replaces a3964ae and the two options for The Lost
+Age only if all of these hold: C is unchanged; B loses no function, or the
+study re-matches it; X beats a3964ae with the options on held-out A; X closes
+at least half of the canaries; and the neighbouring snapshots agree.
+
+**Outcomes.** If X passes, The Lost Age uses X and both options are deleted.
+If none passes, Pascal chooses: keep the options, renamed so they cannot pass
+for real GCC options and documented with the study's counts, or remove them,
+which returns 33 credited The Lost Age functions to drafts.
+
+**Dates.** The study stops on 2026-10-12 whatever the result, and the
+verdict goes to Pascal on 2026-10-13. No compiler change lands before his
+answer.
+
+**The Broken Seal is settled.** a3964ae with Alchemy's flags reproduces all
+2,260 credited The Broken Seal objects byte for byte. No compiler variant that
+keeps them identical improves any of its drafts, and four July 2000 ChangeLog
+reversions are no-ops for Thumb.
+
+**A reproducible build.** The approved binaries are rebuilt from this source
+so that they no longer depend on the folder they were built in. Their
+fingerprints change; every credited file must stay byte-identical.
 
 Compiler build success is not ROM equivalence. Alchemy owns compiler selection,
 staging, approved executable digests, and full linked-byte verification.
