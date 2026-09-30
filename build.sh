@@ -4,7 +4,12 @@ set -eu
 compiler_source=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 compiler_build="$compiler_source/build"
 compiler_jobs=${AGSCC_JOBS:-8}
-export CFLAGS='-O2 -fno-pie -no-pie -Wno-narrowing -Wno-implicit-int -Wno-implicit-function-declaration -Wno-pointer-arith -Wno-int-conversion -Wno-format -Wno-error -std=gnu17 -Wno-incompatible-pointer-types -fcommon'
+# The binaries must not depend on where they were built: source and build
+# paths map to fixed names, and the prefix is fixed (the driver is always
+# called with -B, so it never looks there).
+compiler_prefix=/agscc
+prefix_maps="-ffile-prefix-map=$compiler_build=agscc/build -ffile-prefix-map=$compiler_source=agscc"
+export CFLAGS="-O2 -fno-pie -no-pie -Wno-narrowing -Wno-implicit-int -Wno-implicit-function-declaration -Wno-pointer-arith -Wno-int-conversion -Wno-format -Wno-error -std=gnu17 -Wno-incompatible-pointer-types -fcommon $prefix_maps"
 export CXXFLAGS='-O2 -fno-pie -no-pie -Wno-narrowing -Wno-error -std=gnu++17'
 export LDFLAGS='-no-pie'
 
@@ -16,14 +21,14 @@ fi
 mkdir -p "$compiler_build/libiberty" "$compiler_build/gcc"
 if [ ! -f "$compiler_build/libiberty/Makefile" ]; then
     (cd "$compiler_build/libiberty" && "$compiler_source/libiberty/configure" \
-        --srcdir="$compiler_source/libiberty" --prefix="$compiler_build/install" \
+        --srcdir="$compiler_source/libiberty" --prefix="$compiler_prefix" \
         --build=i686-unknown-linux-gnu --host=i686-unknown-linux-gnu \
         --target=arm-elf --disable-shared --disable-nls)
 fi
 make -C "$compiler_build/libiberty" -j"$compiler_jobs"
 if [ ! -f "$compiler_build/gcc/Makefile" ]; then
     (cd "$compiler_build/gcc" && "$compiler_source/gcc/configure" \
-        --srcdir="$compiler_source/gcc" --prefix="$compiler_build/install" \
+        --srcdir="$compiler_source/gcc" --prefix="$compiler_prefix" \
         --build=i686-unknown-linux-gnu --host=i686-unknown-linux-gnu \
         --target=arm-elf --with-cpu=arm7tdmi --enable-multilib --enable-interwork \
         --enable-languages=c --without-headers --disable-shared --disable-threads \
