@@ -360,6 +360,10 @@ Unrecognized value in TARGET_CPU_DEFAULT.
    constant pool.  */
 #define THUMB_FLAG_SPLIT_CONSTANTS		(1 << 21)
 
+/* Set if Thumb indirect calls should move the target into lr and branch
+   with the second half of a bl, rather than call a _call_via_rX stub.  */
+#define THUMB_FLAG_CALL_VIA_LR			(1 << 22)
+
 #define TARGET_APCS_FRAME		(target_flags & ARM_FLAG_APCS_FRAME)
 #define TARGET_POKE_FUNCTION_NAME	(target_flags & ARM_FLAG_POKE)
 #define TARGET_FPE			(target_flags & ARM_FLAG_FPE)
@@ -383,6 +387,7 @@ Unrecognized value in TARGET_CPU_DEFAULT.
 #define TARGET_CALLEE_INTERWORKING	(target_flags & THUMB_FLAG_CALLEE_SUPER_INTERWORKING)
 #define TARGET_CALLER_INTERWORKING	(target_flags & THUMB_FLAG_CALLER_SUPER_INTERWORKING)
 #define TARGET_THUMB_SPLIT_CONSTANTS	(target_flags & THUMB_FLAG_SPLIT_CONSTANTS)
+#define TARGET_THUMB_CALL_VIA_LR	(target_flags & THUMB_FLAG_CALL_VIA_LR)
 #define TARGET_BACKTRACE	        (leaf_function_p ()	      			\
 				         ? (target_flags & THUMB_FLAG_LEAF_BACKTRACE)	\
 				         : (target_flags & THUMB_FLAG_BACKTRACE))
@@ -468,6 +473,9 @@ Unrecognized value in TARGET_CPU_DEFAULT.
   {"thumb-split-constants",	    THUMB_FLAG_SPLIT_CONSTANTS,		   \
    N_("Thumb: Build constants with an add rather than a pool load") },	   \
   {"no-thumb-split-constants",     -THUMB_FLAG_SPLIT_CONSTANTS, "" },	   \
+  {"thumb-call-via-lr",		    THUMB_FLAG_CALL_VIA_LR,		   \
+   N_("Thumb: Call through a register with mov lr and a bl") },	   \
+  {"no-thumb-call-via-lr",	    -THUMB_FLAG_CALL_VIA_LR, "" },	   \
   SUBTARGET_SWITCHES							   \
   {"",				TARGET_DEFAULT, "" }			   \
 }
