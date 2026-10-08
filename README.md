@@ -58,12 +58,10 @@ any retained file. Subsequent commits separately record:
 - Darwin system-header compatibility.
 - This build entry point and documentation.
 - A disabled garbage collector in cc1, for host stability.
-- A post-reload constant lookup fix, reverted because it changed 8 bytes of
-  credited code.
 - Symbol and label hashing in cselib by content, not address, so the output
   does not depend on where the host places memory.
-- Two Thumb options for The Lost Age only: `-mthumb-split-constants` (002c421)
-  and `-mthumb-call-via-lr` (a3964ae). They reconstruct habits found across
+- Two Thumb options for The Lost Age only: `-mthumb-split-constants` (2ab0aca)
+  and `-mthumb-call-via-lr` (e2b87a3). They reconstruct habits found across
   that game's code; no known GCC release has them. They are under the study
   below and stay as they are until its verdict.
 
@@ -101,9 +99,9 @@ a lone BL suffix to lr; snapshots around any hit are added.
 **Metric.** Exact functions on held-out A, then total instruction edits,
 scored with the scorer behind Alchemy's `make drafts`.
 
-**Pass mark.** Compiler X replaces a3964ae and the two options for The Lost
+**Pass mark.** Compiler X replaces e2b87a3 and the two options for The Lost
 Age only if all of these hold: C is unchanged; B loses no function, or the
-study re-matches it; X beats a3964ae with the options on held-out A; X closes
+study re-matches it; X beats e2b87a3 with the options on held-out A; X closes
 at least half of the canaries; and the neighbouring snapshots agree.
 
 **Outcomes.** If X passes, The Lost Age uses X and both options are deleted.
@@ -122,10 +120,10 @@ the ARM backend of all 28 candidates. Every one builds a Thumb constant
 inline only with mov, mov and neg, or mov and lsl, and loads anything else
 from the pool; every one calls through a register with a `_call_via_rX`
 stub, and none uses the lone BL-suffix call. Measured with the permuter's
-scorer, a3964ae with the options matches 88 of 348 held-out A functions and
+scorer, e2b87a3 with the options matches 88 of 348 held-out A functions and
 all 300 of B, and leaves C unchanged; without them it matches 83 and loses 37
 of B, each one an inline constant turned back into a pool load. The 2000-08
-snapshot, built with these host ports, reproduces a3964ae without the
+snapshot, built with these host ports, reproduces e2b87a3 without the
 options function for function; the 2000-09 and 2000-10 snapshots break 152
 and 163 of B and change 1,470 and 1,661 of C's objects.
 
@@ -148,7 +146,7 @@ the options and in the 2000-08 snapshot, and later snapshots make it worse,
 so it too points at a local change rather than a later public GCC. It gets no
 option until a whole-game rule for it is found.
 
-**The Broken Seal is settled.** a3964ae with Alchemy's flags reproduces all
+**The Broken Seal is settled.** e2b87a3 with Alchemy's flags reproduces all
 2,260 credited The Broken Seal objects byte for byte. No compiler variant that
 keeps them identical improves any of its drafts, and four July 2000 ChangeLog
 reversions are no-ops for Thumb.
