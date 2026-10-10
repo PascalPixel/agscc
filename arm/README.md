@@ -1,7 +1,7 @@
-# Stock ARM compiler study
+# Stock ARM compiler
 
-This builds the C frontend and ARM backend of GNU GCC 2.95.2 (1999-10-24).
-It is a separate stock compiler candidate; the existing GCC 2.96 Thumb
+This builds the C frontend and ARM backend of GNU GCC 2.95.2 (version banner
+`2.95.2 19991024 (release)`). It is the admitted ARM compiler; the GCC 2.96 Thumb
 compiler and The Lost Age's two Thumb options are unchanged.
 
 Run `make -C arm`. The output is `arm/build/gcc/cc1`. The recipe downloads
@@ -35,6 +35,18 @@ it contains no inline assembly, fixed-register variables or asm barriers.
 The current compiler-shaped game ARM corpus consists of these two routines.
 The earlier seven-routine comparison also included five routines subsequently
 proved handwritten; those are not evidence about compiler output.
+
+The expanded release/history study independently rebuilt untouched GNU source
+in a pinned 32-bit environment. GCC 2.95, 2.95.1, 2.95.2 and 2.95.2.1 all
+match those same 18 edition cases. This recipe pins 2.95.2 as a practical
+representative of that family, not as a uniquely identified original release.
+A January 4, 2000 CSE change on the 2.95 maintenance branch loses the six
+glyph matches; fresh builds reproduce both sides of that boundary.
+
+Pascal approved this route on 2026-10-10. The Alchemy bundle uses it in place
+of agbcc_arm. The native build is a host-adapted build with
+a stock target/optimizer; the two documented host edits above remain part
+of its corresponding source.
 
 GCC 2.96 already contains the scheduler rule, but its ARM backend is not a
 drop-in replacement for these sources: it changes both routines with stock

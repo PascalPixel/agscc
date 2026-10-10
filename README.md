@@ -1,18 +1,31 @@
 # agscc
 
-GCC 2.96 (2000-07-31 snapshot), prepared for Alchemy's ARM/Thumb reconstruction.
-This is a host-adapted compiler, not a claim of unmodified GCC or recovered
-original game tooling.
+Alchemy's bounded compiler set: three C generators, one source pin and build
+entry point. Pascal approved this package on 2026-10-10:
+
+| Generator | Source | Use |
+| --- | --- | --- |
+| agscc | GCC 2.96, 2000-07-31, with documented host ports and Thumb options | Both games' Thumb code and shared libgcc C |
+| GCC 2.95.2 ARM | GNU archive pinned by SHA-256 in `arm/` | Both games' ARM C |
+| old_agbcc | Pinned, unmodified [pret/agbcc](https://github.com/pret/agbcc) submodule in `agbcc/` | Sound and flash libraries |
+
+These are reconstruction choices, not recovered original game tooling. This
+package builds only `old_agbcc` from pret's repository; its other generators
+are not part of Alchemy's toolchain. Alchemy's AGENTS.md owns the fixed profiles.
 
 ## Build
 
-Run `make` or `sh build.sh`. Requires a native C compiler and Make. Outputs are
-`build/gcc/cc1`, `xgcc`, `cpp0`, and `tradcpp0`. `AGSCC_JOBS` controls build
-parallelism (default 8). Building does not install or replace another compiler.
-The admitted native build supports ARM64 macOS. The historical i686 host
+Run `git submodule update --init --recursive`, then `make` or `sh build.sh`.
+Requires Git, a native C compiler, Make, curl and tar, plus Rosetta on Apple
+Silicon for the ARM compiler. The three generators are `build/gcc/cc1`,
+`arm/build/gcc/cc1` and `agbcc/gcc/old_agbcc`; the July build also supplies
+`xgcc`, `cpp0` and `tradcpp0`. `AGSCC_JOBS` controls build.sh parallelism
+(default 8). Building does not install or replace another compiler.
+`make source-check` rejects a missing, changed or dirty nested compiler.
+The complete native package currently supports ARM64 macOS. The historical i686 host
 descriptor selects the old integer model; it does not describe the host CPU.
 
-The separate [stock ARM compiler study](arm/README.md) builds GCC 2.95.2
+The separate [stock ARM compiler recipe](arm/README.md) builds GCC 2.95.2
 without changing this GCC 2.96 compiler. Its source archive, host changes
 and build recipe live under `arm/`.
 
@@ -66,12 +79,14 @@ any retained file. Subsequent commits separately record:
   does not depend on where the host places memory.
 - Two Thumb options for The Lost Age only: `-mthumb-split-constants` (2ab0aca)
   and `-mthumb-call-via-lr` (e2b87a3). They reconstruct habits found across
-  that game's code; no known GCC release has them. They are under the study
-  below and stay as they are until its verdict.
+  that game's code. The bounded study below supports retaining them.
 
 Each patch's commit message records its justification. No other allocator,
-scheduler, literal-pool or alignment change is included. No GCC 3 or agbcc
-source is included. Alchemy consumes pret/agbcc separately.
+scheduler, literal-pool or alignment change is included in the July compiler.
+The ARM recipe preserves the stock optimizer and backend with two documented
+host fixes. The nested `agbcc` gitlink preserves pret's source and identity;
+no pret compiler source is modified. All compiler source, host patches and
+source pins live in this GPL toolchain repository, outside Alchemy's game tree.
 
 ## The Lost Age compiler study
 
@@ -131,29 +146,43 @@ snapshot, built with these host ports, reproduces e2b87a3 without the
 options function for function; the 2000-09 and 2000-10 snapshots break 152
 and 163 of B and change 1,470 and 1,661 of C's objects.
 
-Pascal chose on 2026-09-30 to keep both options under their GCC-style names,
-as Camelot's own changes to the Thumb backend. Why a person at Camelot made
-them: each habit runs through the whole of The Lost Age, so it belongs to the
-compiler and not to some functions; neither is in The Broken Seal, built a
-year earlier with the same compiler family; no public GCC of the time has
-either; and each is a small, local backend change a toolchain engineer makes
-for speed. The first skips a slow cartridge-ROM load for the constant; the
-second skips a stub on every indirect call, and works only because The Lost
-Age's game code no longer interworks with ARM code. That makes them one
-coherent change to one compiler. Alchemy's AGENTS.md (K1 to K3) holds the
-standard: a compiler change is admitted only when one option set explains a
-game's code as a whole, never a file or a function.
+Pascal chose on 2026-09-30 to keep both options under their GCC-style names.
+The expanded 2026-10-10 study supports retaining them as explicit
+reconstruction features: neither general form was supplied by the tested
+public compilers. The observed patterns do not establish who implemented
+the original behavior or prove that its implementation was a particular
+Camelot GCC patch. The Lost Age also has explicit ARM-kernel loaders and
+separately compiled library stub calls; the whole game is not described as
+free of ARM interworking.
 
-The Lost Age's remaining instruction-order difference (for example
-DeriMura_TalkShopkeeper's one reordered load) is the same with or without
-the options and in the 2000-08 snapshot, and later snapshots make it worse,
-so it too points at a local change rather than a later public GCC. It gets no
-option until a whole-game rule for it is found.
+The later bounded scan found 8,064 adjacent mov/shift/add constant sequences
+and 2,495 lr/suffix calls in game-labelled English TLA code, with none of
+either in its TBS scan. These counts exclude decoded pools and jump tables;
+they are not a claim to cover every executable byte. In the expanded current
+source inventory, agscc matches 1,255/1,255 TLA Thumb objects; disabling both
+options reduces that to 875/1,255, the same count as untouched July GCC.
+The fractions count objects, not whole-game completion or independent
+functions. Alchemy's AGENTS.md K1–K3 governs any adoption or change: one
+setting must explain the relevant whole-game behavior, never one function.
 
-**The Broken Seal is settled.** e2b87a3 with Alchemy's flags reproduces all
+The Lost Age's remaining instruction-order differences do not justify an
+additional scheduler option. Alchemy retains stock `-mtune=arm9tdmi` for
+TLA with the ARM7TDMI target. A new compiler change requires new general
+evidence and the project's approval; one stubborn function is insufficient.
+
+**Original The Broken Seal regression (2026-09-30).** e2b87a3 with Alchemy's flags reproduces all
 2,260 credited The Broken Seal objects byte for byte. No compiler variant that
 keeps them identical improves any of its drafts, and four July 2000 ChangeLog
 reversions are no-ops for Thumb.
+
+The expanded 2026-10-10 study built 31 release/vendor/snapshot versions and
+searched local GCC history transitions. Untouched July GCC matches 675/676
+current TBS Thumb objects; the host port's symbol/label content hashing
+accounts for the one remaining difference. Thus agscc's host changes are
+not claimed to be code-generation-equivalent to untouched GNU GCC.
+The study still supports the mid-2000 Thumb family, without identifying
+Camelot's exact compiler executable. Its public reports live in Alchemy's
+`tools/alchemy/src/compiler/{study,thumb295,vershist}.md`.
 
 **A reproducible build.** The approved binaries are rebuilt from this source
 so that they no longer depend on the folder they were built in. Their
