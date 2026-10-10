@@ -12,6 +12,10 @@ parallelism (default 8). Building does not install or replace another compiler.
 The admitted native build supports ARM64 macOS. The historical i686 host
 descriptor selects the old integer model; it does not describe the host CPU.
 
+The separate [stock ARM compiler study](arm/README.md) builds GCC 2.95.2
+without changing this GCC 2.96 compiler. Its source archive, host changes
+and build recipe live under `arm/`.
+
 ## Explicit ARM build
 
 The native Makefiles list the C frontend, ARM backend, host library, and

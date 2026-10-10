@@ -1,0 +1,13 @@
+--- a/gcc/config/arm/arm.c
++++ b/gcc/config/arm/arm.c
+@@ -529 +529 @@
+-  arm_prog_mode = TARGET_APCS_32 ? PROG_MODE_PROG32 : PROG_MODE_PROG26;
++  arm_prgmode = TARGET_APCS_32 ? PROG_MODE_PROG32 : PROG_MODE_PROG26;
+--- a/libiberty/strerror.c
++++ b/libiberty/strerror.c
+@@ -464,0 +465,3 @@
++#ifdef __APPLE__
++extern const int sys_nerr;
++#else
+@@ -465,0 +469 @@
++#endif
